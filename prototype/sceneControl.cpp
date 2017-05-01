@@ -1,0 +1,71 @@
+#include "sceneControl.h"
+
+SceneControl::SceneControl() {
+	_scenelocker = true;
+	_rotate = true;
+	_reset = false;
+	_test = false;
+	_dir = ' ';
+	_difx = 0;
+	_dify = 0;
+}
+
+void SceneControl::cameraMove(const Sint32& x, const Sint32& y) {
+	if (!_scenelocker) {
+		_difx = x;
+		_dify = y;
+	}
+}
+
+void SceneControl::changeStatus(const SDL_Keycode& mode) {
+	switch (mode){
+	//unlock camera
+	case SDLK_l: {
+		_scenelocker = !_scenelocker;
+		break;
+	}
+	//rotate toggle
+	case SDLK_r: {
+		_rotate = !_rotate;
+		break;
+	}
+	//reset scene
+	case SDLK_b: {
+		_reset = true;
+		break;
+	}
+	//toggle testgrid
+	case SDLK_t: {
+		_test = !_test;
+		break;
+	}
+	//camera position move
+	case SDLK_a: {
+		_dir = 'a';
+		break;
+	}
+	case SDLK_s: {
+		_dir = 's';
+		break;
+	}
+	case SDLK_d: {
+		_dir = 'd';
+		break;
+	}
+	case SDLK_w: {
+		_dir = 'w';
+		break;
+	}
+	case SDLK_LCTRL: {
+		_dir = 'l';
+		break;
+	}
+	case SDLK_SPACE: {
+		_dir = 'u';
+		break;
+	}
+	//mouse motion
+	default:
+		break;
+	}
+}
