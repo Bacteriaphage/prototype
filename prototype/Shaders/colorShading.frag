@@ -26,4 +26,5 @@ void main() {
 	float light = dot(normal, u_reverseLightDirection);
 	if(light < 0.0) light = 0.0;
 	color.xyz *= light;
+	color += fragmentColor * 0.1;
 }

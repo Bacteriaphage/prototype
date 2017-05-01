@@ -1,6 +1,8 @@
 #pragma once
 #include <GL/glew.h>
 #include "GLTexture.h"
+#include <glm\/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 
@@ -25,5 +27,15 @@ public:
     GLuint _vboID;
     GLTexture _texture;
 
+};
+
+class Bullet : public Sprite{
+public:
+	int _ttl;
+	Bullet(int t) {
+		_ttl = t;
+	}
+	void init(float, float, float);
+	void bulletmove(glm::vec3);
 };
 

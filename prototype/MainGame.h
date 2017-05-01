@@ -2,7 +2,7 @@
 
 
 #include <GL/glew.h>
-
+#include <GL/glut.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -13,6 +13,7 @@
 #include "Sprite.h"
 #include "testGrid.h"
 
+#include <list>
 #include <vector>
 
 enum class GameState {PLAY, EXIT};
@@ -43,9 +44,6 @@ private:
 			glm::mat4 model(1.0f);
 			glm::vec4 res(destination, 1);
 			model = glm::translate(model, -viewPoint);
-			for (int i = 0; i < 3; i++) {
-				std::cout << model[3][i] << " ";
-			}
 			res = model * res;
 			std::cout << std::endl;
 			glm::vec3 forward = glm::normalize(destination - viewPoint);
@@ -67,13 +65,9 @@ private:
 			}
 			model = glm::rotate(glm::mat4(1.0f), (float)(0.0001 * fabs(horizontalfactor)+0.01) * -x, upper);
 			res = model * res;
-			for (int i = 0; i < 3; i++) {
-				std::cout << model[3][i] << " ";
-			}
 			std::cout << std::endl;
 			res = glm::translate(glm::mat4(1.0f), viewPoint) * res;
 			destination = glm::vec3(res);
-			std::cout << horizontalfactor << " " << destination.x << " " << destination.y << " " << destination.z << " " << glm::distance(destination, viewPoint) << std::endl;
 		}
 		void cameraTranslate(const char& dir) {
 			glm::vec3 forword = glm::normalize(destination - viewPoint);
@@ -106,7 +100,14 @@ private:
 				break;
 			}
 		}
-
+	};
+	struct BulletTrace{
+		Bullet _bull;
+		glm::vec3 _dir;
+		BulletTrace(glm::vec3 from, glm::vec3 dir) : _bull(40) {
+			_bull.init(from.x, from.y,from.z);
+			_dir = dir;
+		}
 	};
 public:
     MainGame();
@@ -120,14 +121,16 @@ private:
     void processInput();
     void drawGame();
     void calculateFPS();
-
+	void shootbullet();
+	void checkbullet();
     SDL_Window* _window;
     int _screenWidth;
     int _screenHeight;
     GameState _gameState;
 
     std::vector <Sprite*> _sprites;
-	TestGrid *_testGrid;
+	std::list <BulletTrace> _bullets;
+	std::vector<TestGrid*> _testGrid;
 
     GLSLProgram _colorProgram;
 

@@ -21,7 +21,9 @@ MainGame::MainGame() :
 //Destructor
 MainGame::~MainGame()
 {
-	delete _testGrid;
+	for (int i = 0; i < _testGrid.size(); i++) {
+		delete _testGrid[i];
+	}
 }
 
 //This runs the game
@@ -29,8 +31,10 @@ void MainGame::run() {
     initSystems();
 
     //Initialize our sprites. (temporary)
-	_testGrid = new TestGrid(1.0f);
-	_testGrid->init();
+	_testGrid.push_back(new TestGrid(1.0f));
+	_testGrid.back()->initPlane();
+	_testGrid.push_back(new TestGrid(1.0f));
+	_testGrid.back()->initGrid();
     _sprites.push_back(new Sprite);
     _sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
 	_sprites.push_back(new Sprite);
@@ -110,6 +114,7 @@ void MainGame::gameLoop() {
 			_control._difx = 0;
 			_control._dify = 0;
 		}
+		checkbullet();
         drawGame();
         calculateFPS();
 
@@ -145,6 +150,9 @@ void MainGame::processInput() {
                 break;
 			case SDL_KEYDOWN:
 				_control.changeStatus(evnt.key.keysym.sym);
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				shootbullet();
 				break;
         }
     }
@@ -189,16 +197,25 @@ void MainGame::drawGame() {
 
 	glUniform3fv(u_reverseLightDirectionLocation, 1, &reverseLightDirection[0]);
 	if (_control._test) {
-		_testGrid->draw();
+		if(_control._test == 1)
+			_testGrid[0]->drawPlane();
+		else {
+			_testGrid[1]->drawGrid();
+		}
 	}
 	//Draw our sprite!
+	
     for (int i = 0; i < _sprites.size(); i++) {
         _sprites[i]->draw();
     }
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBegin(GL_POINT);
-	glVertex3f(_camera.destination.x, _camera.destination.y, _camera.destination.z);
-	glEnd();
+
+	mvp = proj * view;
+	model = glm::mat4(1.0f);
+	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
+	for (auto it = _bullets.begin(); it != _bullets.end(); it++) {
+		it->_bull.draw();
+	}
     //unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -252,6 +269,22 @@ void MainGame::calculateFPS() {
     } else {
         _fps = 60.0f;
     }
-
-
+}
+void MainGame::shootbullet() {
+	_bullets.push_back(BulletTrace(_camera.viewPoint, glm::normalize(_camera.destination - _camera.viewPoint)));
+}
+void MainGame::checkbullet() {
+	for (auto it = _bullets.begin(); it != _bullets.end();) {
+		it->_bull.bulletmove(it->_dir);
+		--(it->_bull._ttl);
+		it++;
+	}
+	for (auto it = _bullets.begin(); it != _bullets.end();) {
+		if (it->_bull._ttl == 0) {
+			auto del = it;
+			it++;
+			_bullets.erase(del);
+		}
+		else break;
+	}
 }

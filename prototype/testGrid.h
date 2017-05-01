@@ -10,6 +10,8 @@ public:
 
 	TestGrid(double);
 	~TestGrid();
-	void init();
-	void draw();
+	void initGrid();
+	void drawGrid();
+	void initPlane();
+	void drawPlane();
 };

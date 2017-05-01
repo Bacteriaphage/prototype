@@ -4,7 +4,7 @@ SceneControl::SceneControl() {
 	_scenelocker = true;
 	_rotate = true;
 	_reset = false;
-	_test = false;
+	_test = 0;
 	_dir = ' ';
 	_difx = 0;
 	_dify = 0;
@@ -36,7 +36,7 @@ void SceneControl::changeStatus(const SDL_Keycode& mode) {
 	}
 	//toggle testgrid
 	case SDLK_t: {
-		_test = !_test;
+		_test = (_test+1) % 3;
 		break;
 	}
 	//camera position move

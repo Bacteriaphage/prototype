@@ -10,7 +10,7 @@ public:
 	//reset scene
 	bool _reset;
 	//test toggle
-	bool _test;
+	int _test;
 	//translate direction
 	char _dir;
 	//relative mouse move

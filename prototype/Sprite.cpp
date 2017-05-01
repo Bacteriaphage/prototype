@@ -208,3 +208,11 @@ void Sprite::draw() {
     //Unbind the VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+void Bullet::init(float x, float y, float z) {
+	Sprite::init(x, y, z, 0.01, 0.01, 0.01, "");
+}
+
+void Bullet::bulletmove(glm::vec3 dir) {
+	init(_x + 0.2*dir.x, _y + 0.2*dir.y - 0.0001 * (40 - _ttl) * (40 - _ttl), _z + 0.2*dir.z);
+}
