@@ -4,8 +4,8 @@
 
 #include <string>
 
-#define WIDTH 1366
-#define Height 768
+#define WIDTH 800
+#define Height 600
 
 //Constructor, just initializes private member variables
 MainGame::MainGame() : 
@@ -32,13 +32,13 @@ void MainGame::run() {
 
     //Initialize our sprites. (temporary)
 	_testGrid.push_back(new TestGrid(1.0f));
-	_testGrid.back()->initPlane();
+	_testGrid.back()->initPlane("Textures/floor.png");
 	_testGrid.push_back(new TestGrid(1.0f));
 	_testGrid.back()->initGrid();
     _sprites.push_back(new Sprite);
-    _sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
+    _sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "Textures/brick.png");
 	_sprites.push_back(new Sprite);
-	_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "");
+	_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "Textures/stonewall.png");
 
 //    _sprites.push_back(new Sprite);
 //    _sprites.back()->init(0.0f, -1.0f, 1.0f, 1.0f, "Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
@@ -75,7 +75,7 @@ void MainGame::initSystems() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     //Set the background color to blue
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 
     initShaders();
 }
@@ -161,48 +161,80 @@ void MainGame::processInput() {
 //Draws the game using the almighty OpenGL
 void MainGame::drawGame() {
 
+
     //Set the base depth to 1.0
     glClearDepth(1.0);
     //Clear the color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //Enable the shader
-    _colorProgram.use();
 
-    //We are using texture unit 0
-    glActiveTexture(GL_TEXTURE0);
-	//Get the uniform location
-	//    GLint textureLocation = _colorProgram.getUniformLocation("mySampler");
-	//    Tell the shader that the texture is in texture unit 0
-	//    glUniform1i(textureLocation, 0);
+    _colorProgram.use();
 
 	//Set the constantly changing time variable
 	//GLint timeLocation = _colorProgram.getUniformLocation("time");
 	//glUniform1f(timeLocation, _time);
 
+	glActiveTexture(GL_TEXTURE0);
+	//Get the uniform location
+	GLint textureLocation = _colorProgram.getUniformLocation("mySampler");
+	//Tell the shader that the texture is in texture unit 0
+	glUniform1i(textureLocation, 0);
 	//MVP matrix;
 	GLint u_matrixLocation = _colorProgram.getUniformLocation("u_matrix");
 	glm::mat4 view = glm::lookAt(_camera.viewPoint, _camera.destination, _camera.upper);
 	glm::mat4 model(1.0f);
 	model = glm::rotate(model, _time, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 proj = glm::perspective(108.0f, 1366.0f / 768.0f, 0.01f, 50.0f);
+	glm::mat4 proj = glm::perspective(108.0f, 800.0f / 600.0f, 0.01f, 50.0f);
 	glm::mat4 mvp = proj * view * model;
 	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
 	GLint u_modelLocation = _colorProgram.getUniformLocation("u_model");
 	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
+	
 	//reverse light direction
 	GLint u_reverseLightDirectionLocation = _colorProgram.getUniformLocation("u_reverseLightDirection");
 	glm::vec3 reverseLightDirection = glm::vec3(0.0, 1.0, 0.5);
-
 	glUniform3fv(u_reverseLightDirectionLocation, 1, &reverseLightDirection[0]);
-	if (_control._test) {
-		if(_control._test == 1)
-			_testGrid[0]->drawPlane();
-		else {
-			_testGrid[1]->drawGrid();
-		}
-	}
+	
+	//// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	//GLuint FramebufferName = 0;
+	//glGenFramebuffers(1, &FramebufferName);
+	//glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	//// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	//GLuint depthTexture;
+	//glGenTextures(1, &depthTexture);
+	//glBindTexture(GL_TEXTURE_2D, depthTexture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1366, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	//glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+	//glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+
+	//					   // Always check that our framebuffer is ok
+	//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	//	return;
+
+	// Compute the MVP matrix from the light's point of view
+	//glm::mat4 depthProjectionMatrix = glm::perspective(108.0f, 800.0f / 600.0f, 0.01f, 50.0f);
+	//glm::mat4 depthViewMatrix = glm::lookAt(reverseLightDirection, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	//glm::mat4 depthModelMatrix = glm::mat4(1.0);
+	//glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+	//// Send our transformation to the currently bound shader,
+	//// in the "MVP" uniform
+	//GLuint depthMatrixID = _colorProgram.getUniformLocation("u_depthMatrix");
+	//glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
+
+	
 	//Draw our sprite!
 	
     for (int i = 0; i < _sprites.size(); i++) {
@@ -215,6 +247,16 @@ void MainGame::drawGame() {
 	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
 	for (auto it = _bullets.begin(); it != _bullets.end(); it++) {
 		it->_bull.draw();
+	}
+
+
+	//We are using texture unit 0
+	if (_control._test) {
+		if (_control._test == 1)
+			_testGrid[0]->drawPlane();
+		else {
+			_testGrid[1]->drawGrid();
+		}
 	}
     //unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);

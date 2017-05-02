@@ -9,6 +9,7 @@ in vec3 vertexNormal;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
+//uniform mat4 u_depthMatrix;
 
 out vec3 fragmentPosition;
 out vec3 fragmentNormal;
@@ -20,11 +21,10 @@ out vec2 fragmentUV;
 void main() {
     //Set the x,y position on the screen
     gl_Position = u_matrix * vec4(vertexPosition, 1.0);
-    
+    //u_depthMatrix + u_matrix;
     fragmentColor = vertexColor;
     
     fragmentUV = vec2(vertexUV.x, 1.0 - vertexUV.y);
-
 	
 	fragmentNormal = mat3(u_model) * vertexNormal;
 

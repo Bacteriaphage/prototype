@@ -148,13 +148,54 @@ void Sprite::init(float x, float y, float z, float len, float wid, float hei, st
 	vertexData[33].setNormal(0, -1, 0);
 	vertexData[34].setNormal(0, -1, 0);
 	vertexData[35].setNormal(0, -1, 0);
+	
+	vertexData[0].setUV(1.0f, 1.0f);
+	vertexData[1].setUV(0.0f, 0.0f);
+	vertexData[2].setUV(1.0f, 0.0f);
+	vertexData[3].setUV(1.0f, 1.0f);
+	vertexData[4].setUV(0.0f, 0.0f);
+	vertexData[5].setUV(0.0f, 1.0f);
 
+	vertexData[6].setUV(1.0f, 1.0f);
+	vertexData[7].setUV(0.0f, 0.0f);
+	vertexData[8].setUV(1.0f, 0.0f);
+	vertexData[9].setUV(1.0f, 1.0f);
+	vertexData[10].setUV(0.0f, 0.0f);
+	vertexData[11].setUV(0.0f, 1.0f);
+
+	vertexData[12].setUV(1.0f, 1.0f);
+	vertexData[13].setUV(0.0f, 0.0f);
+	vertexData[14].setUV(1.0f, 0.0f);
+	vertexData[15].setUV(1.0f, 1.0f);
+	vertexData[16].setUV(0.0f, 0.0f);
+	vertexData[17].setUV(0.0f, 1.0f);
+
+	vertexData[18].setUV(1.0f, 1.0f);
+	vertexData[19].setUV(0.0f, 0.0f);
+	vertexData[20].setUV(1.0f, 0.0f);
+	vertexData[21].setUV(1.0f, 1.0f);
+	vertexData[22].setUV(0.0f, 0.0f);
+	vertexData[23].setUV(0.0f, 1.0f);
+
+	vertexData[24].setUV(1.0f, 1.0f);
+	vertexData[25].setUV(0.0f, 0.0f);
+	vertexData[26].setUV(1.0f, 0.0f);
+	vertexData[27].setUV(1.0f, 1.0f);
+	vertexData[28].setUV(0.0f, 0.0f);
+	vertexData[29].setUV(0.0f, 1.0f);
+
+	vertexData[30].setUV(1.0f, 1.0f);
+	vertexData[31].setUV(0.0f, 0.0f);
+	vertexData[32].setUV(1.0f, 0.0f);
+	vertexData[33].setUV(1.0f, 1.0f);
+	vertexData[34].setUV(0.0f, 0.0f);
+	vertexData[35].setUV(0.0f, 1.0f);
 
     //Set all vertex colors to magenta
-    for (int i = 0; i < 6; i++) {
-        vertexData[i].setColor(255, 0, 255, 100);
+    for (int i = 0; i < 36; i++) {
+        vertexData[i].setColor(255, 255, 255, 100);
     }
-	for (int i = 6; i < 12; i++) {
+	/*for (int i = 6; i < 12; i++) {
 		vertexData[i].setColor(0, 0, 255, 100);
 	}
 	for (int i = 12; i < 18; i++) {
@@ -168,7 +209,7 @@ void Sprite::init(float x, float y, float z, float len, float wid, float hei, st
 	}
 	for (int i = 30; i < 36; i++) {
 		vertexData[i].setColor(255, 255, 0, 255);
-	}
+	}*/
     //Tell opengl to bind our vertex buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     //Upload the data to the GPU
@@ -181,7 +222,7 @@ void Sprite::init(float x, float y, float z, float len, float wid, float hei, st
 //Draws the sprite to the screen
 void Sprite::draw() {
 
-//    glBindTexture(GL_TEXTURE_2D, _texture.id);
+    glBindTexture(GL_TEXTURE_2D, _texture.id);
 
     //bind the buffer object
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -214,5 +255,5 @@ void Bullet::init(float x, float y, float z) {
 }
 
 void Bullet::bulletmove(glm::vec3 dir) {
-	init(_x + 0.2*dir.x, _y + 0.2*dir.y - 0.0001 * (40 - _ttl) * (40 - _ttl), _z + 0.2*dir.z);
+	init(_x + 0.2*dir.x, _y + 0.2*dir.y - 0.0002 * (40 - _ttl), _z + 0.2*dir.z);
 }

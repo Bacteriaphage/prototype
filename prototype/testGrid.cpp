@@ -1,5 +1,6 @@
 #include "testGrid.h"
 #include <cstddef>
+#include "ResourceManager.h"
 
 TestGrid::TestGrid(double gran = 1.0f) {
 	_vboID = 0;
@@ -62,9 +63,12 @@ void TestGrid::initGrid() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void TestGrid::initPlane() {
+void TestGrid::initPlane(std::string texturePath = "") {
 	if (_vboID == 0) {
 		glGenBuffers(1, &_vboID);
+	}
+	if (texturePath != "") {
+		_texture = ResourceManager::get_Texture(texturePath);
 	}
 	Vertex vertexData[4];
 	vertexData[0].setPosition(25 * granular, 0.0, 25 * granular);
@@ -75,6 +79,10 @@ void TestGrid::initPlane() {
 	vertexData[1].setColor(200, 200, 200, 200);
 	vertexData[2].setColor(200, 200, 200, 200);
 	vertexData[3].setColor(200, 200, 200, 200);
+	vertexData[0].setUV(0, 0);
+	vertexData[1].setUV(1, 0);
+	vertexData[2].setUV(1, 1);
+	vertexData[3].setUV(0, 1);
 	vertexData[0].setNormal(0, 1, 0);
 	vertexData[1].setNormal(0, 1, 0);
 	vertexData[2].setNormal(0, 1, 0);
@@ -96,6 +104,8 @@ void TestGrid::drawGrid() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 void TestGrid::drawPlane() {
+	
+	glBindTexture(GL_TEXTURE_2D, _texture.id);
 	glBindBuffer(GL_ARRAY_BUFFER, _vboID);
 	glEnableVertexAttribArray(0);
 

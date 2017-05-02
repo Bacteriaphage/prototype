@@ -7,11 +7,13 @@ in vec2 fragmentUV;
 
 //This is the 3 component float vector that gets outputted to the screen
 //for each pixel.
+
 out vec4 color;
 
 uniform vec3 u_reverseLightDirection;
+
 //uniform float time;
-//uniform sampler2D mySampler;
+uniform sampler2D mySampler;
 
 void main() {
 
@@ -26,5 +28,7 @@ void main() {
 	float light = dot(normal, u_reverseLightDirection);
 	if(light < 0.0) light = 0.0;
 	color.xyz *= light;
-	color += fragmentColor * 0.1;
+	color += fragmentColor * 0.3;
+	color.a = 1.0;
+	color = texture(mySampler, fragmentUV) * color;
 }
