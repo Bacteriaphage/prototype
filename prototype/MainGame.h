@@ -75,28 +75,28 @@ private:
 
 			switch (dir) {
 			case 'a':
-				viewPoint += left * 0.1f;
-				destination += left * 0.1f;
+				viewPoint += left * 0.05f;
+				destination += left * 0.05f;
 				break;
 			case 's':
-				viewPoint -= forword * 0.1f;
-				destination -= forword * 0.1f;
+				viewPoint -= forword * 0.05f;
+				destination -= forword * 0.05f;
 				break;
 			case 'd':
-				viewPoint -= left * 0.1f;
-				destination -= left * 0.1f;
+				viewPoint -= left * 0.05f;
+				destination -= left * 0.05f;
 				break;
 			case 'w':
-				viewPoint += forword * 0.1f;
-				destination += forword * 0.1f;
+				viewPoint += forword * 0.05f;
+				destination += forword * 0.05f;
 				break;
 			case 'l':
-				viewPoint.y -= 0.1f;
-				destination.y -= 0.1f;
+				viewPoint.y -= 0.05f;
+				destination.y -= 0.05f;
 				break;
 			case 'u':
-				viewPoint.y += 0.1f;
-				destination.y += 0.1f;
+				viewPoint.y += 0.05f;
+				destination.y += 0.05f;
 				break;
 			}
 		}
@@ -119,6 +119,7 @@ private:
     void initShaders();
     void gameLoop();
     void processInput();
+	void drawShadow(GLuint *, GLuint *, GLuint *);
     void drawGame();
     void calculateFPS();
 	void shootbullet();
@@ -133,6 +134,7 @@ private:
 	std::vector<TestGrid*> _testGrid;
 
     GLSLProgram _colorProgram;
+	GLSLProgram _shadowProgram;
 
     float _fps;
     float _maxFPS;

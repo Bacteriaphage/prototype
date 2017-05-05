@@ -2,7 +2,7 @@
 
 SceneControl::SceneControl() {
 	_scenelocker = true;
-	_rotate = true;
+	_rotate = false;
 	_reset = false;
 	_test = 0;
 	_dir = ' ';

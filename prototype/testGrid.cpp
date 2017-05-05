@@ -71,18 +71,18 @@ void TestGrid::initPlane(std::string texturePath = "") {
 		_texture = ResourceManager::get_Texture(texturePath);
 	}
 	Vertex vertexData[4];
-	vertexData[0].setPosition(25 * granular, 0.0, 25 * granular);
-	vertexData[1].setPosition(-25 * granular, 0.0, 25 * granular);
-	vertexData[2].setPosition(-25 * granular, 0.0, -25 * granular);
-	vertexData[3].setPosition(25 * granular, 0.0, -25 * granular);
+	vertexData[0].setPosition(100 * granular, 0.0, 100 * granular);
+	vertexData[1].setPosition(-100 * granular, 0.0, 100 * granular);
+	vertexData[2].setPosition(-100 * granular, 0.0, -100 * granular);
+	vertexData[3].setPosition(100 * granular, 0.0, -100 * granular);
 	vertexData[0].setColor(200, 200, 200, 200);
 	vertexData[1].setColor(200, 200, 200, 200);
 	vertexData[2].setColor(200, 200, 200, 200);
 	vertexData[3].setColor(200, 200, 200, 200);
 	vertexData[0].setUV(0, 0);
-	vertexData[1].setUV(1, 0);
-	vertexData[2].setUV(1, 1);
-	vertexData[3].setUV(0, 1);
+	vertexData[1].setUV(100, 0);
+	vertexData[2].setUV(100, 100);
+	vertexData[3].setUV(0, 100);
 	vertexData[0].setNormal(0, 1, 0);
 	vertexData[1].setNormal(0, 1, 0);
 	vertexData[2].setNormal(0, 1, 0);

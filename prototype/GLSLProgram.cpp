@@ -39,7 +39,6 @@ void GLSLProgram::compileShaders(const std::string& vertexShaderFilePath, const 
     compileShader(vertexShaderFilePath, _vertexShaderID);
     compileShader(fragmentShaderFilepath, _fragmentShaderID);
 }
-
 void GLSLProgram::linkShaders() {
 
     //Attach our shaders to our program
@@ -68,7 +67,6 @@ void GLSLProgram::linkShaders() {
         //Don't leak shaders either.
         glDeleteShader(_vertexShaderID);
         glDeleteShader(_fragmentShaderID);
-
         //print the error log and quit
         std::printf("%s\n", &(errorLog[0]));
         fatalError("Shaders failed to link!");
