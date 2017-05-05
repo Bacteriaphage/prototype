@@ -41,8 +41,12 @@ void MainGame::run() {
 	//_sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "");
 	_sprites.push_back(new Sprite);
 	_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "Textures/stonewall.png");
+	//_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "");
+
 	_sprites.push_back(new Sprite);
 	_sprites.back()->init(4.0f, 2.0f, -4.0f, 2.0f, 2.0f, 2.0f, "Textures/wood.png");
+	//_sprites.back()->init(4.0f, 2.0f, -4.0f, 2.0f, 2.0f, 2.0f, "");
+
 //    _sprites.push_back(new Sprite);
 //    _sprites.back()->init(0.0f, -1.0f, 1.0f, 1.0f, "Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
   
@@ -126,10 +130,10 @@ void MainGame::gameLoop() {
 		}
 		checkbullet();
         drawGame();
-		/*GLuint shadowTexture = 0;
-		GLuint FramebufferName = 0;
-		GLuint renderbuffer = 0;
-		drawShadow(&shadowTexture, &FramebufferName, &renderbuffer);*/
+		//GLuint shadowTexture = 0;
+		//GLuint FramebufferName = 0;
+		//GLuint renderbuffer = 0;
+		//drawShadow(&shadowTexture, &FramebufferName, &renderbuffer);
         calculateFPS();
 
         //print only once every 10 frames
@@ -184,10 +188,10 @@ void drawtest(GLuint texture) {
 	vertexData[1].setColor(200, 200, 200, 200);
 	vertexData[2].setColor(200, 200, 200, 200);
 	vertexData[3].setColor(200, 200, 200, 200);
-	vertexData[0].setUV(1, 0);
-	vertexData[1].setUV(0, 0);
-	vertexData[2].setUV(0, 1);
-	vertexData[3].setUV(1, 1);
+	vertexData[0].setUV(1, 1);
+	vertexData[1].setUV(0, 1);
+	vertexData[2].setUV(0, 0);
+	vertexData[3].setUV(1, 0);
 	vertexData[0].setNormal(0, 1, 0);
 	vertexData[1].setNormal(0, 1, 0);
 	vertexData[2].setNormal(0, 1, 0);
@@ -208,17 +212,18 @@ void drawtest(GLuint texture) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 //Draws the game using the almighty OpenGL
+
 void MainGame::drawGame() {
 	GLuint shadowTexture = 0;
+	GLuint depthTexture = 0;
 	GLuint FramebufferName = 0;
-	GLuint renderbuffer = 0;
-	drawShadow(&shadowTexture, &FramebufferName, &renderbuffer);
+	drawShadow(&shadowTexture, &FramebufferName, &depthTexture);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
     //Set the base depth to 1.0
     //glClearDepth(1.0);
     //Clear the color and depth buffer
- //   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LEQUAL);
 	// Enable blending
@@ -227,19 +232,19 @@ void MainGame::drawGame() {
     //Enable the shader
 
     _colorProgram.use();
-//	glBindTexture(GL_TEXTURE_2D, shadowTexture);
 
-	glActiveTexture(GL_TEXTURE0);
+	GLint shadowMap = _colorProgram.getUniformLocation("shadowMap");
+	glUniform1i(shadowMap, 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shadowTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
 	//Get the uniform location
 	GLint textureLocation = _colorProgram.getUniformLocation("mySampler");
 	//Tell the shader that the texture is in texture unit 0
 	glUniform1i(textureLocation, 0);
+	glActiveTexture(GL_TEXTURE0);
 
-	/*glActiveTexture(GL_TEXTURE1);
-
-	GLint shadowMap = _colorProgram.getUniformLocation("shadowMap");
-
-	glUniform1i(shadowMap, 0);*/
 	//MVP matrix;
 	GLint u_matrixLocation = _colorProgram.getUniformLocation("u_matrix");
 	glm::mat4 view = glm::lookAt(_camera.viewPoint, _camera.destination, _camera.upper);
@@ -253,7 +258,7 @@ void MainGame::drawGame() {
 	
 	//reverse light direction
 	GLint u_reverseLightDirectionLocation = _colorProgram.getUniformLocation("u_reverseLightDirection");
-	glm::vec3 reverseLightDirection = glm::vec3(0.0, 9.0, 12.0);
+	glm::vec3 reverseLightDirection = glm::vec3(0.0, 9.0, 36.0);
 	glUniform3fv(u_reverseLightDirectionLocation, 1, &reverseLightDirection[0]);
 	
 	//depth_matrix
@@ -267,7 +272,7 @@ void MainGame::drawGame() {
 	GLuint depthMatrixID = _colorProgram.getUniformLocation("u_depthMatrix");
 	glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 	//Draw our sprite!
-	drawtest(shadowTexture);
+	//drawtest(shadowTexture);
     for (int i = 0; i < _sprites.size(); i++) {
         _sprites[i]->draw();
     }
@@ -301,18 +306,15 @@ void MainGame::drawGame() {
     SDL_GL_SwapWindow(_window);
 }    
 
-void MainGame::drawShadow(GLuint * depthTexture, GLuint * FramebufferName, GLuint * renderbuffer) {
+void MainGame::drawShadow(GLuint * shadowTexture, GLuint * FramebufferName, GLuint * depthTexture) {
 	//Set the base depth to 1.0
-	glClearDepth(1.0);
+	//glClearDepth(1.0);
 	//Clear the color and depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	//Enable the shader
-
 	_shadowProgram.use();
 
-	glm::vec3 reverseLightDirection = glm::vec3(0.0, -9.0, 12.0);
+	glm::vec3 reverseLightDirection = glm::vec3(0.0, 9.0, 36.0);
 #if 1
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 	//GLuint FramebufferName = 0;
@@ -320,19 +322,21 @@ void MainGame::drawShadow(GLuint * depthTexture, GLuint * FramebufferName, GLuin
 	glBindFramebuffer(GL_FRAMEBUFFER, *FramebufferName);
 
 	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
-	glGenTextures(1, depthTexture);
-	glBindTexture(GL_TEXTURE_2D, *depthTexture);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1366, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glGenTextures(1, shadowTexture);
+	glBindTexture(GL_TEXTURE_2D, *shadowTexture);
+	//glGenTextures(1, depthTexture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 600, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
-	////glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *depthTexture, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *depthTexture, 0);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *shadowTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *shadowTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *depthTexture, 0);
 	//GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	//glDrawBuffers(1, DrawBuffers); // No color buffer is drawn to.
+	//glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 	//glReadBuffer(GL_NONE);
 	// Always check that our framebuffer is ok
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -342,6 +346,7 @@ void MainGame::drawShadow(GLuint * depthTexture, GLuint * FramebufferName, GLuin
 #endif
 	//Compute the MVP matrix from the light's point of view
 	glm::mat4 depthProjectionMatrix = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 100.0f);
+	//glm::mat4 depthProjectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.01f, 100.0f);
 	glm::mat4 depthViewMatrix = glm::lookAt(reverseLightDirection, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 depthModelMatrix = glm::rotate(glm::mat4(1.0f), _time, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
@@ -352,11 +357,6 @@ void MainGame::drawShadow(GLuint * depthTexture, GLuint * FramebufferName, GLuin
 	glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 
 	//Draw our sprite!
-
-	for (int i = 0; i < _sprites.size(); i++) {
-		_sprites[i]->draw();
-	}
-
 	//We are using texture unit 0
 	if (_control._test) {
 		if (_control._test == 1)
@@ -365,6 +365,11 @@ void MainGame::drawShadow(GLuint * depthTexture, GLuint * FramebufferName, GLuin
 			_testGrid[1]->drawGrid();
 		}
 	}
+
+	for (int i = 0; i < _sprites.size(); i++) {
+		_sprites[i]->draw();
+	}
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glBindRenderbuffer(GL_RENDERBUFFER, 0);

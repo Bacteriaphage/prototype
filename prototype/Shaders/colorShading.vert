@@ -22,7 +22,8 @@ out vec2 fragmentUV;
 
 void main() {
     //Set the x,y position on the screen
-    gl_Position = u_matrix * vec4(vertexPosition, 1.0);
+	gl_Position = u_matrix * vec4(vertexPosition, 1.0);
+    //gl_Position = u_depthMatrix * vec4(vertexPosition, 1.0);
 
     fragmentColor = vertexColor;
     
@@ -33,6 +34,6 @@ void main() {
 	fragmentNormal = mat3(u_model) * vertexNormal;
 
 	//shadow depth
-	fragmentPosLightSpace = u_depthMatrix * vec4(fragmentPosition, 1.0);
+	fragmentPosLightSpace = u_depthMatrix * vec4(vertexPosition, 1.0);
 
 }

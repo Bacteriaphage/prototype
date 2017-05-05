@@ -45,7 +45,6 @@ private:
 			glm::vec4 res(destination, 1);
 			model = glm::translate(model, -viewPoint);
 			res = model * res;
-			std::cout << std::endl;
 			glm::vec3 forward = glm::normalize(destination - viewPoint);
 			glm::vec3 verticleAxle = glm::normalize(glm::cross(forward, upper));
 			//indicate how fast camera horizontal rotate
