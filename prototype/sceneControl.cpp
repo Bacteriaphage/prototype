@@ -16,7 +16,12 @@ void SceneControl::cameraMove(const Sint32& x, const Sint32& y) {
 		_dify = y;
 	}
 }
-
+void SceneControl::cameraMove(const Sint16& x_move, const Sint16& y_move) {
+	Sint32 x, y;
+	x = x_move / 10000;
+	y = y_move / 10000;
+	SceneControl::cameraMove(x, y);
+}
 void SceneControl::changeStatus(const SDL_Keycode& mode) {
 	switch (mode){
 	//unlock camera

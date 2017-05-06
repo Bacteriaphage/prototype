@@ -18,5 +18,6 @@ public:
 	Sint32 _dify;
 	SceneControl();
 	void changeStatus(const SDL_Keycode&);
+	void cameraMove(const Sint16&, const Sint16&);
 	void cameraMove(const Sint32&, const Sint32&);
 };

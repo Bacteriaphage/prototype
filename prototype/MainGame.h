@@ -64,7 +64,6 @@ private:
 			}
 			model = glm::rotate(glm::mat4(1.0f), (float)(0.0001 * fabs(horizontalfactor)+0.01) * -x, upper);
 			res = model * res;
-			std::cout << std::endl;
 			res = glm::translate(glm::mat4(1.0f), viewPoint) * res;
 			destination = glm::vec3(res);
 		}
@@ -134,7 +133,7 @@ private:
 
     GLSLProgram _colorProgram;
 	GLSLProgram _shadowProgram;
-
+	SDL_Joystick* joy = nullptr;
     float _fps;
     float _maxFPS;
     float _frameTime;

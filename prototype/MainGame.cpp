@@ -110,7 +110,17 @@ void MainGame::gameLoop() {
     while (_gameState != GameState::EXIT) {
         //Used for frame time measuring
         float startTicks = SDL_GetTicks(); 
-
+		if (!joy) {
+			joy = SDL_JoystickOpen(0);
+			if (joy) {
+				std::cout << "joystick connected!" << std::endl;
+				std::cout << "name of joystick is " << SDL_JoystickName(joy) << std::endl;
+				std::cout << "number of balls is " << SDL_JoystickNumBalls(joy) << std::endl;
+				std::cout << "number of axis is " << SDL_JoystickNumAxes(joy) << std::endl;
+				std::cout << "number of buttons is " << SDL_JoystickNumButtons(joy) << std::endl;
+				std::cout << "number of hats is " << SDL_JoystickNumHats(joy) << std::endl;
+			}
+		}
         processInput();
 		//control scene part
 		if(_control._rotate)
@@ -128,6 +138,10 @@ void MainGame::gameLoop() {
 			_control._difx = 0;
 			_control._dify = 0;
 		}
+		Sint16 x_move, y_move;
+		x_move = SDL_JoystickGetAxis(joy, 0);
+		y_move = SDL_JoystickGetAxis(joy, 1);
+		_control.cameraMove(x_move, y_move);
 		checkbullet();
         drawGame();
 		//GLuint shadowTexture = 0;
@@ -150,6 +164,10 @@ void MainGame::gameLoop() {
             SDL_Delay((Uint32)(1000.0f / _maxFPS - frameTicks));
         }
     }
+	if (joy) {
+		SDL_JoystickClose(joy);
+		std::cout << "Joystick closed!" << std::endl;
+	}
 }
 
 //Processes input with SDL
@@ -171,6 +189,27 @@ void MainGame::processInput() {
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				shootbullet();
+				break;
+			case SDL_JOYHATMOTION:
+				switch (evnt.jhat.value) {
+				case 1:
+					_control._dir = 'w';
+					break;
+				case 2:
+					_control._dir = 'd';
+					break;
+				case 4:
+					_control._dir = 's';
+					break;
+				case 8:
+					_control._dir = 'a';
+					break;
+				}
+				break;
+			case SDL_JOYBUTTONDOWN:
+				if (evnt.jbutton.button == 5) {
+					shootbullet();
+				}
 				break;
         }
     }
