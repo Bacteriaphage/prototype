@@ -7,6 +7,8 @@ public:
 	bool _scenelocker;
 	//all objects rotating switch
 	bool _rotate;
+	//sun rise
+	bool _sunrise;
 	//reset scene
 	bool _reset;
 	//test toggle

@@ -10,7 +10,7 @@ in vec4 fragmentPosLightSpace;
 //for each pixel.
 
 out vec4 color;
-
+uniform float u_scene;
 uniform vec3 u_reverseLightDirection;
 
 //uniform float time;
@@ -18,7 +18,8 @@ uniform sampler2D mySampler;
 uniform sampler2D shadowMap;
 
 float shadowCalculate(vec4 fragmentPosLightSpace){
-	float bias = max(0.01 * (1.0 - dot(fragmentNormal, normalize(u_reverseLightDirection))), 0.001);
+	//float bias = 0.001;
+	float bias = max(0.012 * (1.0 - dot(fragmentNormal, normalize(u_reverseLightDirection))), 0.002);
 	// perform perspective divide
     vec3 projCoords = fragmentPosLightSpace.xyz / fragmentPosLightSpace.w;
 
@@ -29,10 +30,10 @@ float shadowCalculate(vec4 fragmentPosLightSpace){
     float closestDepth = texture(shadowMap, projCoords.xy).x; 
     
 	// Get depth of current fragment from light's perspective
-    float currentDepth = 10.0 / fragmentPosLightSpace.z;
+    float currentDepth = 1.0 / fragmentPosLightSpace.z;
     
 	// Check whether current frag pos is in shadow
-    float shadow = currentDepth + bias > closestDepth ? 0.0 : 1.0;
+    float shadow = (closestDepth>0.0001) ? (currentDepth + bias > closestDepth ? 0.0 : 1.0) : 1.0;
 
     return shadow;
 }
@@ -43,19 +44,9 @@ void main() {
     
 	
 	float light = dot(normal, normalize(u_reverseLightDirection));
-	if(light < 0.3) light = 0.2;
+	if(light < 0.1) light = 0.1;
 	float shadow = shadowCalculate(fragmentPosLightSpace);
-	
-	color = fragmentColor;
-	//float shadow = shadow2DProj(shadowMap, fragmentPosLightSpace).r;
-	//color.xyz = shadow * color.xyz;
-	//color = fragmentColor;
-	
-	//float depth = texture(shadowMap, fragmentUV).r;
-	//color = vec4(vec3(1.0-depth), 1.0);
 	color = texture(mySampler, fragmentUV);
-	//color = texture(shadowMap, fragmentUV);
-	//float distance = 1.0 / fragmentPosLightSpace.z;
-	//color = vec4(shadow, shadow, shadow, 1.0);
-	color.xyz = color.xyz * ((1.0 - shadow)+0.3) * light;
+	if(u_scene < 1.0)
+		color.xyz = color.xyz * ((1.0 - shadow)+0.3) * light;
 }

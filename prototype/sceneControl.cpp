@@ -4,6 +4,7 @@ SceneControl::SceneControl() {
 	_scenelocker = true;
 	_rotate = false;
 	_reset = false;
+	_sunrise = false;
 	_test = 0;
 	_dir = ' ';
 	_difx = 0;
@@ -32,6 +33,10 @@ void SceneControl::changeStatus(const SDL_Keycode& mode) {
 	//rotate toggle
 	case SDLK_r: {
 		_rotate = !_rotate;
+		break;
+	}
+	case SDLK_z: {
+		_sunrise = !_sunrise;
 		break;
 	}
 	//reset scene

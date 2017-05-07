@@ -80,9 +80,9 @@ void TestGrid::initPlane(std::string texturePath = "") {
 	vertexData[2].setColor(200, 200, 200, 200);
 	vertexData[3].setColor(200, 200, 200, 200);
 	vertexData[0].setUV(0, 0);
-	vertexData[1].setUV(100, 0);
-	vertexData[2].setUV(100, 100);
-	vertexData[3].setUV(0, 100);
+	vertexData[1].setUV(1, 0);
+	vertexData[2].setUV(1, 1);
+	vertexData[3].setUV(0, 1);
 	vertexData[0].setNormal(0, 1, 0);
 	vertexData[1].setNormal(0, 1, 0);
 	vertexData[2].setNormal(0, 1, 0);

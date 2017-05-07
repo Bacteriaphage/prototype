@@ -73,28 +73,28 @@ private:
 
 			switch (dir) {
 			case 'a':
-				viewPoint += left * 0.05f;
-				destination += left * 0.05f;
+				viewPoint += left * 0.005f;
+				destination += left * 0.005f;
 				break;
 			case 's':
-				viewPoint -= forword * 0.05f;
-				destination -= forword * 0.05f;
+				viewPoint -= forword * 0.005f;
+				destination -= forword * 0.005f;
 				break;
 			case 'd':
-				viewPoint -= left * 0.05f;
-				destination -= left * 0.05f;
+				viewPoint -= left * 0.005f;
+				destination -= left * 0.005f;
 				break;
 			case 'w':
-				viewPoint += forword * 0.05f;
-				destination += forword * 0.05f;
+				viewPoint += forword * 0.005f;
+				destination += forword * 0.005f;
 				break;
 			case 'l':
-				viewPoint.y -= 0.05f;
-				destination.y -= 0.05f;
+				viewPoint.y -= 0.005f;
+				destination.y -= 0.005f;
 				break;
 			case 'u':
-				viewPoint.y += 0.05f;
-				destination.y += 0.05f;
+				viewPoint.y += 0.005f;
+				destination.y += 0.005f;
 				break;
 			}
 		}
@@ -105,6 +105,15 @@ private:
 		BulletTrace(glm::vec3 from, glm::vec3 dir) : _bull(40) {
 			_bull.init(from.x, from.y,from.z);
 			_dir = dir;
+		}
+	};
+	struct SunLight {
+		glm::vec3 reverseProspectLight;
+		SunLight(float x = 2.5f, float y = 2.0f, float z = 2.5f) {
+			reverseProspectLight = glm::vec3(x, y, z);
+		}
+		void reset() {
+			reverseProspectLight = glm::vec3(2.5f, 2.0f, 2.5f);
 		}
 	};
 public:
@@ -130,7 +139,7 @@ private:
     std::vector <Sprite*> _sprites;
 	std::list <BulletTrace> _bullets;
 	std::vector<TestGrid*> _testGrid;
-
+	
     GLSLProgram _colorProgram;
 	GLSLProgram _shadowProgram;
 	SDL_Joystick* joy = nullptr;
@@ -138,8 +147,10 @@ private:
     float _maxFPS;
     float _frameTime;
     float _time;
+	float _suntime;
 	//control camera
 	SceneControl _control;
 	Camera _camera;
+	SunLight _sunLight;
 };
 

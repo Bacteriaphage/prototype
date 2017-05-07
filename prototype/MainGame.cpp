@@ -8,10 +8,11 @@
 #define Height 600
 
 //Constructor, just initializes private member variables
-MainGame::MainGame() : 
-    _screenWidth(WIDTH),
-    _screenHeight(Height), 
-    _time(0.0f),
+MainGame::MainGame() :
+	_screenWidth(WIDTH),
+	_screenHeight(Height),
+	_time(0.0f),
+	_suntime(0.0f),
     _window(nullptr), 
     _gameState(GameState::PLAY),
     _maxFPS(60.0f)
@@ -31,20 +32,23 @@ void MainGame::run() {
     initSystems();
 
     //Initialize our sprites. (temporary)
-	_testGrid.push_back(new TestGrid(1.0f));
+	_testGrid.push_back(new TestGrid(0.05f));
 	_testGrid.back()->initPlane("Textures/floor.png");
 	//_testGrid.back()->initPlane("");
-	_testGrid.push_back(new TestGrid(1.0f));
+	_testGrid.push_back(new TestGrid(0.1f));
 	_testGrid.back()->initGrid();
+	_sprites.push_back(new Sprite);
+	_sprites.back()->init(_sunLight.reverseProspectLight.x, 
+		_sunLight.reverseProspectLight.y, _sunLight.reverseProspectLight.z, 0.1f, 0.1f, 0.1f, "Textures/sun.png");
     _sprites.push_back(new Sprite);
-    _sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "Textures/brick.png");
+    _sprites.back()->init(-0.1f, 0.1f, 0.1f, 0.2f, 0.2f, 0.2f, "Textures/brick.png");
 	//_sprites.back()->init(-1.0f, 0.0f, 1.0f, 2.0f, 2.0f, 2.0f, "");
 	_sprites.push_back(new Sprite);
-	_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "Textures/stonewall.png");
+	_sprites.back()->init(-0.4f, 0.2f, 0.4f, 0.2f, 0.2f, 0.2f, "Textures/stonewall.png");
 	//_sprites.back()->init(-4.0f, 0.0f, 4.0f, 2.0f, 2.0f, 2.0f, "");
 
 	_sprites.push_back(new Sprite);
-	_sprites.back()->init(4.0f, 2.0f, -4.0f, 2.0f, 2.0f, 2.0f, "Textures/wood.png");
+	_sprites.back()->init(0.4f, 0.4f, -0.4f, 0.2f, 0.2f, 0.2f, "Textures/wood.png");
 	//_sprites.back()->init(4.0f, 2.0f, -4.0f, 2.0f, 2.0f, 2.0f, "");
 
 //    _sprites.push_back(new Sprite);
@@ -58,7 +62,9 @@ void MainGame::run() {
 void MainGame::initSystems() {
     //Initialize SDL
     SDL_Init(SDL_INIT_EVERYTHING);
-
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+    //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
     //Open an SDL window
     _window = SDL_CreateWindow("Game Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _screenWidth, _screenHeight, SDL_WINDOW_OPENGL);
     if (_window == nullptr) {
@@ -125,6 +131,12 @@ void MainGame::gameLoop() {
 		//control scene part
 		if(_control._rotate)
 			_time += 0.01;
+		if (_control._sunrise) {
+			_sunLight.reset();
+			_suntime += 0.005;
+			glm::mat4 sunRotateMatrix= glm::rotate(glm::mat4(1.0f), _suntime, glm::vec3(1.0, 0.0, -1.0));
+			_sunLight.reverseProspectLight = glm::vec3(glm::vec4(_sunLight.reverseProspectLight, 1.0f) * sunRotateMatrix);
+		}
 		//reset scene
 		if (_control._reset) {
 			_camera.reset();
@@ -207,8 +219,19 @@ void MainGame::processInput() {
 				}
 				break;
 			case SDL_JOYBUTTONDOWN:
-				if (evnt.jbutton.button == 5) {
+				switch (evnt.jbutton.button) {
+				case 5:
 					shootbullet();
+					break;
+				case 1:
+					_control.changeStatus(SDLK_l);
+					break;
+				case 2:
+					_control.changeStatus(SDLK_t);
+					break;
+				case 3:
+					_control.changeStatus(SDLK_r);
+					break;
 				}
 				break;
         }
@@ -259,6 +282,7 @@ void MainGame::drawGame() {
 	drawShadow(&shadowTexture, &FramebufferName, &depthTexture);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
     //Set the base depth to 1.0
     //glClearDepth(1.0);
     //Clear the color and depth buffer
@@ -271,7 +295,9 @@ void MainGame::drawGame() {
     //Enable the shader
 
     _colorProgram.use();
-
+	int scene = 0.0;
+	GLint u_sceneLocation = _colorProgram.getUniformLocation("u_scene");
+	glUniform1f(u_sceneLocation, scene);
 	GLint shadowMap = _colorProgram.getUniformLocation("shadowMap");
 	glUniform1i(shadowMap, 1);
 	glActiveTexture(GL_TEXTURE1);
@@ -289,7 +315,7 @@ void MainGame::drawGame() {
 	glm::mat4 view = glm::lookAt(_camera.viewPoint, _camera.destination, _camera.upper);
 	glm::mat4 model(1.0f);
 	model = glm::rotate(model, _time, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 proj = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 100.0f);
+	glm::mat4 proj = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
 	glm::mat4 mvp = proj * view * model;
 	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
 	GLint u_modelLocation = _colorProgram.getUniformLocation("u_model");
@@ -297,12 +323,12 @@ void MainGame::drawGame() {
 	
 	//reverse light direction
 	GLint u_reverseLightDirectionLocation = _colorProgram.getUniformLocation("u_reverseLightDirection");
-	glm::vec3 reverseLightDirection = glm::vec3(0.0, 9.0, 36.0);
-	glUniform3fv(u_reverseLightDirectionLocation, 1, &reverseLightDirection[0]);
+	//glm::vec3 reverseLightDirection = glm::vec3(24.0, 20.0, 24.0);
+	glUniform3fv(u_reverseLightDirectionLocation, 1, &_sunLight.reverseProspectLight[0]);
 	
 	//depth_matrix
-	glm::mat4 depthProjectionMatrix = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 100.0f);
-	glm::mat4 depthViewMatrix = glm::lookAt(reverseLightDirection, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 depthProjectionMatrix = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
+	glm::mat4 depthViewMatrix = glm::lookAt(_sunLight.reverseProspectLight, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 depthModelMatrix = glm::rotate(glm::mat4(1.0f), _time, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 
@@ -312,20 +338,9 @@ void MainGame::drawGame() {
 	glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 	//Draw our sprite!
 	//drawtest(shadowTexture);
-    for (int i = 0; i < _sprites.size(); i++) {
+    for (int i = 1; i < _sprites.size(); i++) {
         _sprites[i]->draw();
     }
-
-	mvp = proj * view;
-	model = glm::mat4(1.0f);
-	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
-	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
-	for (auto it = _bullets.begin(); it != _bullets.end(); it++) {
-		it->_bull.draw();
-	}
-
-
-	//We are using texture unit 0
 	if (_control._test) {
 		if (_control._test == 1)
 			_testGrid[0]->drawPlane();
@@ -333,6 +348,23 @@ void MainGame::drawGame() {
 			_testGrid[1]->drawGrid();
 		}
 	}
+	mvp = proj * view;
+	model = glm::mat4(1.0f);
+	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
+	for (auto it = _bullets.begin(); it != _bullets.end(); it++) {
+		it->_bull.draw();
+	}
+	model = glm::rotate(glm::mat4(1.0f), _suntime, glm::vec3(-1.0, 0.0, 1.0));
+	mvp = proj * view * model;
+	glUniformMatrix4fv(u_matrixLocation, 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(u_modelLocation, 1, GL_FALSE, &model[0][0]);
+	scene = 1.0;
+	glUniform1f(u_sceneLocation, scene);
+	_sprites[0]->draw();
+
+	//We are using texture unit 0
+	
     //unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &shadowTexture);
@@ -352,8 +384,6 @@ void MainGame::drawShadow(GLuint * shadowTexture, GLuint * FramebufferName, GLui
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	//Enable the shader
 	_shadowProgram.use();
-
-	glm::vec3 reverseLightDirection = glm::vec3(0.0, 9.0, 36.0);
 #if 1
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 	//GLuint FramebufferName = 0;
@@ -384,9 +414,9 @@ void MainGame::drawShadow(GLuint * shadowTexture, GLuint * FramebufferName, GLui
 	}
 #endif
 	//Compute the MVP matrix from the light's point of view
-	glm::mat4 depthProjectionMatrix = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 100.0f);
+	glm::mat4 depthProjectionMatrix = glm::perspective(120.0f, 800.0f / 600.0f, 0.01f, 1000.0f);
 	//glm::mat4 depthProjectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.01f, 100.0f);
-	glm::mat4 depthViewMatrix = glm::lookAt(reverseLightDirection, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 depthViewMatrix = glm::lookAt(_sunLight.reverseProspectLight, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 depthModelMatrix = glm::rotate(glm::mat4(1.0f), _time, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 
@@ -405,7 +435,7 @@ void MainGame::drawShadow(GLuint * shadowTexture, GLuint * FramebufferName, GLui
 		}
 	}
 
-	for (int i = 0; i < _sprites.size(); i++) {
+	for (int i = 1; i < _sprites.size(); i++) {
 		_sprites[i]->draw();
 	}
 
