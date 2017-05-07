@@ -32,7 +32,7 @@ void MainGame::run() {
     initSystems();
 
     //Initialize our sprites. (temporary)
-	_testGrid.push_back(new TestGrid(0.05f));
+	_testGrid.push_back(new TestGrid(0.02f));
 	_testGrid.back()->initPlane("Textures/floor.png");
 	//_testGrid.back()->initPlane("");
 	_testGrid.push_back(new TestGrid(0.1f));

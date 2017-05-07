@@ -26,8 +26,8 @@ private:
 		glm::vec3 destination;
 		glm::vec3 upper;
 		//default view
-		Camera() :viewPoint(glm::vec3(0.0, 1.0, 10.0)),
-			destination(glm::vec3(0.0, 1.0, 9.0)),
+		Camera() :viewPoint(glm::vec3(0.0, 0.1, 2.0)),
+			destination(glm::vec3(0.0, 0.1, 1.0)),
 			upper(glm::vec3(0.0, 1.0, 0.0)) {}
 		void reset() {
 			viewPoint.x = 0.0;
@@ -109,11 +109,11 @@ private:
 	};
 	struct SunLight {
 		glm::vec3 reverseProspectLight;
-		SunLight(float x = 2.5f, float y = 2.0f, float z = 2.5f) {
+		SunLight(float x = 5.0f, float y = 4.0f, float z = 5.0f) {
 			reverseProspectLight = glm::vec3(x, y, z);
 		}
 		void reset() {
-			reverseProspectLight = glm::vec3(2.5f, 2.0f, 2.5f);
+			reverseProspectLight = glm::vec3(5.0f, 4.0f, 5.0f);
 		}
 	};
 public:
